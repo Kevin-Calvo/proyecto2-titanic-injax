@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proyecto 2: Análisis Exploratorio del Titanic — InjaX</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Georgia", serif;
+      font-size: 16px;
+      line-height: 1.75;
+      color: #212529;
+      background: #fff;
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* ── Header ── */
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+    header h1 { font-size: 1.8rem; font-weight: normal; line-height: 1.3; }
+    header p  { margin-top: .6rem; font-size: .95rem; color: #adb5bd; font-style: italic; }
+    header .authors { margin-top: 1.2rem; font-size: 1rem; color: #e9ecef; }
+    header .course  { font-size: .85rem; color: #6c757d; margin-top: .3rem; }
+
+    /* ── Navigation ── */
+    nav {
+      background: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .2rem;
+      padding: .5rem 1.5rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    nav a {
+      display: block;
+      padding: .35rem .75rem;
+      font-size: .85rem;
+      color: #495057;
+      text-decoration: none;
+      border-radius: 4px;
+      font-family: Arial, sans-serif;
+      transition: background .15s;
+    }
+    nav a:hover { background: #e9ecef; color: #212529; }
+
+    /* ── Sections ── */
+    section { margin-top: 3rem; }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #1a1a2e;
+      border-bottom: 2px solid #1a1a2e;
+      padding-bottom: .4rem;
+      margin-bottom: 1.2rem;
+    }
+    h3 {
+      font-size: 1.15rem;
+      color: #1a1a2e;
+      margin-top: 2rem;
+      margin-bottom: .7rem;
+    }
+    p { margin-bottom: 1rem; text-align: justify; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+      margin: 1.2rem 0;
+      font-family: Arial, sans-serif;
+    }
+    th {
+      background: #1a1a2e;
+      color: #fff;
+      padding: .5rem .8rem;
+      text-align: left;
+    }
+    td { padding: .45rem .8rem; border-bottom: 1px solid #dee2e6; }
+    tr:nth-child(even) td { background: #f8f9fa; }
+
+    /* ── Chart containers ── */
+    .chart-block { margin-top: 2rem; }
+    .chart-block h3 { margin-top: 0; }
+    .chart-wrapper {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .chart-wrapper img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+    .chart-caption {
+      font-size: .82rem;
+      color: #6c757d;
+      font-style: italic;
+      margin-top: .5rem;
+      font-family: Arial, sans-serif;
+    }
+
+    /* ── Gist badge ── */
+    .gist-link {
+      display: inline-block;
+      margin-top: .5rem;
+      font-size: .8rem;
+      font-family: Arial, sans-serif;
+      background: #e9ecef;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      padding: .2rem .6rem;
+      color: #495057;
+      text-decoration: none;
+    }
+    .gist-link:hover { background: #dee2e6; }
+
+    /* ── Callout boxes ── */
+    .callout {
+      background: #e7f3ff;
+      border-left: 4px solid #0d6efd;
+      padding: .8rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin: 1.2rem 0;
+      font-size: .95rem;
+    }
+
+    /* ── Conclusions list ── */
+    ul.conclusions { padding-left: 1.4rem; margin-top: .5rem; }
+    ul.conclusions li { margin-bottom: .7rem; }
+
+    /* ── References ── */
+    ol.references { padding-left: 1.4rem; font-size: .9rem; }
+    ol.references li { margin-bottom: .5rem; }
+    a { color: #0d6efd; }
+
+
+    /* ── Code blocks ── */
+    details.code-block {
+      margin: 1rem 0 .5rem;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: .8rem;
+    }
+    details.code-block summary {
+      padding: .5rem .9rem;
+      cursor: pointer;
+      background: #f1f3f5;
+      border-radius: 6px;
+      color: #495057;
+      font-family: Arial, sans-serif;
+      font-size: .85rem;
+      user-select: none;
+    }
+    details.code-block[open] summary { border-radius: 6px 6px 0 0; border-bottom: 1px solid #dee2e6; }
+    .code-inner { padding: .6rem .9rem .9rem; background: #fff; border-radius: 0 0 6px 6px; }
+    .code-cmd { margin: 0 0 .5rem; font-size: .8rem; color: #6c757d; }
+    .code-cmd code { color: #0d6efd; }
+    details.code-block pre {
+      margin: 0;
+      padding: .8rem 1rem;
+      background: #1e1e1e;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    details.code-block pre code {
+      color: #d4d4d4;
+      font-size: .78rem;
+      white-space: pre;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 4rem;
+      border-top: 1px solid #dee2e6;
+      padding-top: 1.5rem;
+      text-align: center;
+      font-size: .85rem;
+      color: #6c757d;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ──────────────────────────────────────────────
+     HEADER
+────────────────────────────────────────────── -->
+<header>
+  <h1>Proyecto 2: Análisis Exploratorio de los Pasajeros del Titanic</h1>
+  <p>Visualizaciones generadas con InjaX — archivos SVG individuales</p>
+  <div class="authors">
+    Kevin Yadir Calvo Rodríguez — 2023367224<br>
+    María Félix Méndez Abarca — 2022438535
+  </div>
+  <div class="course">Visualización de Información · Tecnológico de Costa Rica · 2026</div>
+</header>
+
+<!-- ── Navigation ── -->
+<nav>
+  <ul>
+    <li><a href="#introduccion">1. Introducción</a></li>
+    <li><a href="#problema">2. Problema</a></li>
+    <li><a href="#datos">3. Datos</a></li>
+    <li><a href="#analisis">4. Análisis</a></li>
+    <li><a href="#conclusiones">5. Conclusiones</a></li>
+    <li><a href="#gists">6. Gists</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+
+<!-- ──────────────────────────────────────────────
+     1. INTRODUCCIÓN
+────────────────────────────────────────────── -->
+<section id="introduccion">
+  <h2>1. Introducción</h2>
+  <p>
+    El análisis exploratorio de datos (EDA) es una de las primeras etapas cuando se trabaja con datos.
+    Básicamente, consiste en explorar y entender la información antes de hacer análisis más avanzados.
+    En lugar de partir de ideas fijas, el EDA permite observar los datos, encontrar patrones,
+    identificar valores raros y descubrir relaciones entre las variables.
+  </p>
+  <p>
+    En este proyecto se aplica esta idea al conjunto de datos de los pasajeros del Titanic.
+    El 15 de abril de 1912, este famoso barco se hundió tras chocar con un iceberg, causando la
+    muerte de más de 1.500 personas. De todas las personas a bordo, solo una parte logró sobrevivir.
+    Este evento, además de ser una tragedia, reflejó las diferencias sociales de la época.
+  </p>
+  <p>
+    El dataset analizado contiene información de 891 pasajeros, incluyendo datos como edad, sexo,
+    clase, tarifa pagada y si sobrevivieron o no. A diferencia del primer proyecto, donde se
+    utilizaron visualizaciones interactivas en R Markdown, este segundo proyecto genera cada gráfica
+    como un archivo SVG individual mediante la herramienta <strong>InjaX</strong> y publica el
+    código fuente de cada plantilla en gists de GitHub.
+  </p>
+</section>
+
+<!-- ──────────────────────────────────────────────
+     2. DESCRIPCIÓN DEL PROBLEMA
+────────────────────────────────────────────── -->
+<section id="problema">
+  <h2>2. Descripción del Problema</h2>
+  <p>
+    El hundimiento del Titanic es uno de los eventos más conocidos del siglo XX, y por eso sus
+    datos se utilizan ampliamente en ciencia de datos. Sin embargo, más allá de ser solo un
+    ejercicio, este conjunto de datos refleja una historia real, donde factores como el sexo,
+    la clase social y la edad influyeron en quiénes lograron sobrevivir.
+  </p>
+  <p>
+    Las variables del dataset permiten analizar diferentes aspectos importantes. Por un lado,
+    la clase del pasajero (primera, segunda o tercera) da una idea de su nivel económico y también
+    de su ubicación dentro del barco, lo cual pudo afectar su acceso a los botes salvavidas.
+    Por otro lado, variables como el sexo y la edad son relevantes, ya que durante la evacuación
+    se siguió la regla de "mujeres y niños primero". Además, la tarifa pagada también ayuda a
+    entender las diferencias entre los pasajeros, ya que está relacionada con la clase en la que
+    viajaban.
+  </p>
+  <p>Antes de analizar los datos, se pueden plantear algunas ideas iniciales:</p>
+  <div class="callout">
+    Es probable que las mujeres hayan tenido una mayor tasa de supervivencia que los hombres.
+    Es posible que los pasajeros de primera clase hayan sobrevivido más que los de clases inferiores.
+    La edad también podría influir, especialmente en el caso de los niños.
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────
+     3. FUENTES DE DATOS
+────────────────────────────────────────────── -->
+<section id="datos">
+  <h2>3. Definición de Fuentes de Datos</h2>
+  <p>
+    El conjunto de datos utilizado en este análisis proviene de
+    <a href="https://www.kaggle.com/c/titanic/data" target="_blank">Kaggle</a>,
+    específicamente del archivo <code>tested.csv</code>, el cual es una variante del dataset del
+    Titanic utilizada comúnmente en ejercicios de análisis exploratorio y modelado predictivo.
+    El conjunto contiene aproximadamente 418 registros, donde cada uno corresponde a un pasajero.
+  </p>
+  <p>Para este análisis se utilizaron las siguientes variables principales:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Variable</th>
+        <th>Tipo</th>
+        <th>Descripción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Survived</td><td>Categórica</td><td>Indica si el pasajero sobrevivió: No / Sí</td></tr>
+      <tr><td>Pclass</td><td>Categórica</td><td>Clase del boleto: 1 (primera), 2 (segunda), 3 (tercera)</td></tr>
+      <tr><td>Sex</td><td>Categórica</td><td>Sexo del pasajero: male / female</td></tr>
+      <tr><td>Age</td><td>Numérica</td><td>Edad del pasajero (con valores faltantes)</td></tr>
+      <tr><td>Fare</td><td>Numérica</td><td>Tarifa pagada por el boleto (en USD)</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Una limitación importante del conjunto es la presencia de valores faltantes en la variable
+    <strong>Age</strong> (aproximadamente 86 valores faltantes, un 20% del total), lo cual debe
+    considerarse al interpretar las gráficas que utilizan esta variable. La variable
+    <strong>Fare</strong> presenta un valor faltante adicional.
+  </p>
+</section>
+
+<!-- ──────────────────────────────────────────────
+     4. ANÁLISIS EXPLORATORIO
+────────────────────────────────────────────── -->
+<section id="analisis">
+  <h2>4. Descripción Detallada y Explicación de las Gráficas</h2>
+  <p>
+    El análisis se organiza en tres grupos de gráficas: distribuciones individuales de variables,
+    relaciones entre dos variables, y finalmente una gráfica multidimensional que combina cinco
+    variables simultáneamente. Cada gráfica fue generada como un archivo SVG individual utilizando
+    InjaX y su módulo <code>chart</code>.
+  </p>
+
+  <!-- 4.1 Unidimensionales -->
+  <h3>4.1 Gráficas Unidimensionales</h3>
+  <p>
+    Las gráficas unidimensionales ayudan a entender cómo se comporta cada variable por separado
+    antes de analizar cómo se relacionan entre sí. Se seleccionaron tres variables especialmente
+    útiles para el análisis: la edad, la clase de viaje y la tarifa pagada.
+  </p>
+
+  <!-- Gráfica 1 -->
+  <div class="chart-block">
+    <h3>Gráfica 1 — Distribución de Edad</h3>
+    <details class="code-block">
+      <summary>Ver plantilla InjaX</summary>
+      <div class="code-inner">
+        <p class="code-cmd">$ <code>injax.exe data/tested.csv templates/grafica1_edad.inja charts/grafica1_edad.svg</code></p>
+        <pre><code>{# Gráfica 1 — Distribución de Edad (Histograma) #}
+{# Fuente: data/tested.csv — Variable: Age #}
+{# Tipo: Unidimensional #}
+
+{# ── Construir bins desde el CSV  ── #}
+{% set b0 = [] %}{% set b1 = [] %}{% set b2 = [] %}{% set b3 = [] %}
+{% set b4 = [] %}{% set b5 = [] %}{% set b6 = [] %}{% set b7 = [] %}
+
+{% for d in data %}
+{% if hasKey(d, &quot;Age&quot;) %}
+{% if d.Age &lt; 10 %}{% set b0 = append(b0, 1) %}
+{% else %}{% if d.Age &lt; 20 %}{% set b1 = append(b1, 1) %}
+{% else %}{% if d.Age &lt; 30 %}{% set b2 = append(b2, 1) %}
+{% else %}{% if d.Age &lt; 40 %}{% set b3 = append(b3, 1) %}
+{% else %}{% if d.Age &lt; 50 %}{% set b4 = append(b4, 1) %}
+{% else %}{% if d.Age &lt; 60 %}{% set b5 = append(b5, 1) %}
+{% else %}{% if d.Age &lt; 70 %}{% set b6 = append(b6, 1) %}
+{% else %}{% set b7 = append(b7, 1) %}
+{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+{% endif %}
+{% endfor %}
+
+{# array() para listas con variables  #}
+{% set binLabels = [&quot;0-9&quot;,&quot;10-19&quot;,&quot;20-29&quot;,&quot;30-39&quot;,&quot;40-49&quot;,&quot;50-59&quot;,&quot;60-69&quot;,&quot;70+&quot;] %}
+{% set binCounts = array(length(b0),length(b1),length(b2),length(b3),length(b4),length(b5),length(b6),length(b7)) %}
+{% set chartData = zip_obj([&quot;bin&quot;,&quot;count&quot;], binLabels, binCounts) %}
+
+{# ── Escala y dimensiones ─────────────────────────────────── #}
+{% set margin = obj(&quot;top&quot;, 55, &quot;right&quot;, 30, &quot;bottom&quot;, 75, &quot;left&quot;, 70) %}
+{% set width = 700 - margin.left - margin.right %}
+{% set height = 450 - margin.top - margin.bottom %}
+{% set bins = map(chartData, &quot;bin&quot;) %}
+
+{% set x = scaleBand()
+| domain(bins)
+| range(0, width)
+| padding(0.08) %}
+
+{% set y = scaleLinear()
+| domain(0, 140)
+| range(height, 0) %}
+
+&lt;svg width=&quot;{{width + margin.left + margin.right}}&quot;
+     height=&quot;{{height + margin.top + margin.bottom}}&quot;
+     xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+&lt;style&gt;
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+  .bar { opacity: 0.85; }
+&lt;/style&gt;
+&lt;g transform=&quot;translate({{margin.left}},{{margin.top}})&quot;&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;15&quot; font-weight=&quot;bold&quot; fill=&quot;#1a1a2e&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-28&quot;&gt;
+    Distribución de Edad — Pasajeros del Titanic
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#777&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-12&quot;&gt;
+    Variable: Age (valores nulos excluidos)
+  &lt;/text&gt;
+  &lt;g transform=&quot;translate(0,{{height}})&quot;&gt;
+    {{ call(axisBottom(x) | tickValues(bins)) }}
+  &lt;/g&gt;
+  &lt;g&gt;{{ call(axisLeft(y) | tickCount(6)) }}&lt;/g&gt;
+  {% for d in chartData %}
+  &lt;rect class=&quot;bar&quot;
+        x=&quot;{{ scale(x, d.bin) }}&quot;
+        y=&quot;{{ scale(y, d.count) }}&quot;
+        width=&quot;{{ bandwidth(x) }}&quot;
+        height=&quot;{{ height - scale(y, d.count) }}&quot;
+        fill=&quot;#4e79a7&quot;/&gt;
+  {% endfor %}
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#555&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;{{height + 60}}&quot;&gt;
+    Rango de Edad (años)
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#555&quot;
+        text-anchor=&quot;middle&quot; transform=&quot;rotate(-90)&quot;
+        x=&quot;{{-(height / 2)}}&quot; y=&quot;-52&quot;&gt;
+    Número de Pasajeros
+  &lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+</code></pre>
+      </div>
+    </details>
+    <div class="chart-wrapper">
+      <img src="charts/grafica1_edad.svg" alt="Distribución de Edad de los pasajeros del Titanic" />
+      <p class="chart-caption">
+        Histograma de la variable <em>Age</em>. Muestra la distribución de edades de los 891 pasajeros.
+        <a class="gist-link" href="https://gist.github.com/Kevin-Calvo/2995ce203f85c3506bcf4f43f1ff3688" target="_blank">Ver Gist #1</a>
+      </p>
+    </div>
+    <p>
+      La distribución de edades de los pasajeros muestra que la mayoría se encontraba entre los
+      18 y 29 años, lo que indica que predominaban los adultos jóvenes a bordo del Titanic.
+      También se observa una menor cantidad de niños, reflejada en un pequeño grupo de edades
+      bajas. Además, existen algunos pasajeros de mayor edad, incluso superiores a los 70 años,
+      aunque estos casos son poco frecuentes. Es importante considerar que hay aproximadamente
+      86 valores faltantes en esta variable (un 20%), lo cual puede afectar ligeramente la
+      interpretación de la distribución.
+    </p>
+  </div>
+
+  <!-- Gráfica 2 -->
+  <div class="chart-block">
+    <h3>Gráfica 2 — Distribución por Clase de Viaje</h3>
+    <details class="code-block">
+      <summary>Ver plantilla InjaX</summary>
+      <div class="code-inner">
+        <p class="code-cmd">$ <code>injax.exe data/tested.csv templates/grafica2_clase.inja charts/grafica2_clase.svg</code></p>
+        <pre><code>{# Gráfica 2 — Distribución por Clase de Viaje (Barras) #}
+{# Fuente: data/tested.csv — Variable: Pclass #}
+{# Tipo: Unidimensional #}
+
+{# ── Contar pasajeros por clase desde el CSV ─────────────── #}
+{% set c1 = selectattr(data, &quot;Pclass&quot;, &quot;equalto&quot;, 1) %}
+{% set c2 = selectattr(data, &quot;Pclass&quot;, &quot;equalto&quot;, 2) %}
+{% set c3 = selectattr(data, &quot;Pclass&quot;, &quot;equalto&quot;, 3) %}
+
+{% set classLabels = [&quot;1ra Clase&quot;,&quot;2da Clase&quot;,&quot;3ra Clase&quot;] %}
+{% set classColors = [&quot;#e63946&quot;,&quot;#457b9d&quot;,&quot;#2a9d8f&quot;] %}
+{# array() para listas con variables (literales [var,...] no soportados) #}
+{% set classCounts = array(length(c1), length(c2), length(c3)) %}
+{% set chartData   = zip_obj([&quot;label&quot;,&quot;count&quot;,&quot;color&quot;], classLabels, classCounts, classColors) %}
+
+{# ── Escala y dimensiones ─────────────────────────────────── #}
+{% set margin = obj(&quot;top&quot;, 55, &quot;right&quot;, 30, &quot;bottom&quot;, 60, &quot;left&quot;, 70) %}
+{% set width = 500 - margin.left - margin.right %}
+{% set height = 420 - margin.top - margin.bottom %}
+{% set labels = map(chartData, &quot;label&quot;) %}
+
+{% set x = scaleBand()
+| domain(labels)
+| range(0, width)
+| padding(0.25) %}
+
+{% set y = scaleLinear()
+| domain(0, 260)
+| range(height, 0) %}
+
+&lt;svg width=&quot;{{width + margin.left + margin.right}}&quot;
+     height=&quot;{{height + margin.top + margin.bottom}}&quot;
+     xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+&lt;style&gt;
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+&lt;/style&gt;
+&lt;g transform=&quot;translate({{margin.left}},{{margin.top}})&quot;&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;15&quot; font-weight=&quot;bold&quot; fill=&quot;#1a1a2e&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-28&quot;&gt;
+    Distribución por Clase de Viaje
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#777&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-12&quot;&gt;
+    Variable: Pclass — Pasajeros del Titanic
+  &lt;/text&gt;
+  &lt;g transform=&quot;translate(0,{{height}})&quot;&gt;
+    {{ call(axisBottom(x) | tickValues(labels)) }}
+  &lt;/g&gt;
+  &lt;g&gt;{{ call(axisLeft(y) | tickCount(6)) }}&lt;/g&gt;
+  {% for d in chartData %}
+  &lt;rect x=&quot;{{ scale(x, d.label) }}&quot;
+        y=&quot;{{ scale(y, d.count) }}&quot;
+        width=&quot;{{ bandwidth(x) }}&quot;
+        height=&quot;{{ height - scale(y, d.count) }}&quot;
+        fill=&quot;{{ d.color }}&quot; opacity=&quot;0.87&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;13&quot; font-weight=&quot;bold&quot; fill=&quot;#222&quot;
+        text-anchor=&quot;middle&quot;
+        x=&quot;{{ scale(x, d.label) + bandwidth(x) / 2 }}&quot;
+        y=&quot;{{ scale(y, d.count) - 6 }}&quot;&gt;
+    {{ d.count }}
+  &lt;/text&gt;
+  {% endfor %}
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#555&quot;
+        text-anchor=&quot;middle&quot; transform=&quot;rotate(-90)&quot;
+        x=&quot;{{-(height / 2)}}&quot; y=&quot;-52&quot;&gt;
+    Número de Pasajeros
+  &lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+</code></pre>
+      </div>
+    </details>
+    <div class="chart-wrapper">
+      <img src="charts/grafica2_clase.svg" alt="Distribución por Clase de Viaje" />
+      <p class="chart-caption">
+        Gráfico de barras de la variable <em>Pclass</em>. Muestra la proporción de pasajeros
+        en cada clase.
+        <a class="gist-link" href="https://gist.github.com/Kevin-Calvo/5f80b1470495d68bbb144ecb9a5f34ca" target="_blank">Ver Gist #2</a>
+      </p>
+    </div>
+    <p>
+      La distribución de los pasajeros por clase muestra que no estaban repartidos de forma
+      equitativa. La mayoría viajaba en tercera clase, con aproximadamente el 52% del total,
+      mientras que la primera y segunda clase tenían una menor cantidad de pasajeros. Esto refleja
+      la realidad de la época, donde muchas personas viajaban en condiciones más económicas con
+      la intención de emigrar y buscar nuevas oportunidades. Este desequilibrio es importante
+      porque puede influir en el análisis de la supervivencia, ya que los pasajeros en tercera
+      clase se encontraban en las partes más bajas del barco.
+    </p>
+  </div>
+
+  <!-- Gráfica 3 -->
+  <div class="chart-block">
+    <h3>Gráfica 3 — Distribución de Tarifa Pagada</h3>
+    <details class="code-block">
+      <summary>Ver plantilla InjaX</summary>
+      <div class="code-inner">
+        <p class="code-cmd">$ <code>injax.exe data/tested.csv templates/grafica3_tarifa.inja charts/grafica3_tarifa.svg</code></p>
+        <pre><code>{# Gráfica 3 — Distribución de Tarifa Pagada (Histograma) #}
+{# Fuente: data/tested.csv — Variable: Fare #}
+{# Tipo: Unidimensional #}
+
+{# ── Construir bins desde el CSV  ── #}
+{% set b0 = [] %}{% set b1 = [] %}{% set b2 = [] %}{% set b3 = [] %}{% set b4 = [] %}
+
+{% for d in data %}
+{% if hasKey(d, &quot;Fare&quot;) %}
+{% if d.Fare &lt; 25 %}{% set b0 = append(b0, 1) %}
+{% else %}{% if d.Fare &lt; 50 %}{% set b1 = append(b1, 1) %}
+{% else %}{% if d.Fare &lt; 100 %}{% set b2 = append(b2, 1) %}
+{% else %}{% if d.Fare &lt; 200 %}{% set b3 = append(b3, 1) %}
+{% else %}{% set b4 = append(b4, 1) %}
+{% endif %}{% endif %}{% endif %}{% endif %}
+{% endif %}
+{% endfor %}
+
+{# array() para listas con variables  #}
+{% set binLabels = [&quot;0-25&quot;,&quot;25-50&quot;,&quot;50-100&quot;,&quot;100-200&quot;,&quot;200+&quot;] %}
+{% set binCounts = array(length(b0),length(b1),length(b2),length(b3),length(b4)) %}
+{% set chartData = zip_obj([&quot;bin&quot;,&quot;count&quot;], binLabels, binCounts) %}
+
+{# ── Escala y dimensiones ─────────────────────────────────── #}
+{% set margin = obj(&quot;top&quot;, 55, &quot;right&quot;, 30, &quot;bottom&quot;, 75, &quot;left&quot;, 75) %}
+{% set width = 700 - margin.left - margin.right %}
+{% set height = 450 - margin.top - margin.bottom %}
+{% set bins = map(chartData, &quot;bin&quot;) %}
+
+{% set x = scaleBand()
+| domain(bins)
+| range(0, width)
+| padding(0.08) %}
+
+{% set y = scaleLinear()
+| domain(0, 320)
+| range(height, 0) %}
+
+&lt;svg width=&quot;{{width + margin.left + margin.right}}&quot;
+     height=&quot;{{height + margin.top + margin.bottom}}&quot;
+     xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+&lt;style&gt;
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+&lt;/style&gt;
+&lt;g transform=&quot;translate({{margin.left}},{{margin.top}})&quot;&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;15&quot; font-weight=&quot;bold&quot; fill=&quot;#1a1a2e&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-28&quot;&gt;
+    Distribución de Tarifa Pagada — Pasajeros del Titanic
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#777&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-12&quot;&gt;
+    Variable: Fare (USD) — valores nulos excluidos
+  &lt;/text&gt;
+  &lt;g transform=&quot;translate(0,{{height}})&quot;&gt;
+    {{ call(axisBottom(x) | tickValues(bins)) }}
+  &lt;/g&gt;
+  &lt;g&gt;{{ call(axisLeft(y) | tickCount(7)) }}&lt;/g&gt;
+  {% for d in chartData %}
+  &lt;rect x=&quot;{{ scale(x, d.bin) }}&quot;
+        y=&quot;{{ scale(y, d.count) }}&quot;
+        width=&quot;{{ bandwidth(x) }}&quot;
+        height=&quot;{{ height - scale(y, d.count) }}&quot;
+        fill=&quot;#f4a261&quot; opacity=&quot;0.87&quot;/&gt;
+  {% endfor %}
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#555&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;{{height + 60}}&quot;&gt;
+    Rango de Tarifa (USD)
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#555&quot;
+        text-anchor=&quot;middle&quot; transform=&quot;rotate(-90)&quot;
+        x=&quot;{{-(height / 2)}}&quot; y=&quot;-57&quot;&gt;
+    Número de Pasajeros
+  &lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+</code></pre>
+      </div>
+    </details>
+    <div class="chart-wrapper">
+      <img src="charts/grafica3_tarifa.svg" alt="Distribución de Tarifa Pagada" />
+      <p class="chart-caption">
+        Histograma de la variable <em>Fare</em>. Muestra la distribución de tarifas en USD.
+        <a class="gist-link" href="https://gist.github.com/Kevin-Calvo/d890d9af2284f50c3fa6b577f415d62e" target="_blank">Ver Gist #3</a>
+      </p>
+    </div>
+    <p>
+      La distribución de la tarifa pagada muestra que la mayoría de los pasajeros pagó montos
+      relativamente bajos. La mediana se encuentra alrededor de los 14 USD, lo que indica que
+      más de la mitad de las personas pagaron tarifas cercanas a ese valor. Sin embargo, también
+      se observan varios valores mucho más altos, que llegan hasta más de 500 USD. Estos casos
+      corresponden probablemente a pasajeros de primera clase que viajaban en condiciones más
+      lujosas. Esto genera una distribución asimétrica, donde la mayoría pagó poco y un grupo
+      pequeño pagó cantidades muy elevadas.
+    </p>
+  </div>
+
+  <!-- 4.2 Bidimensionales -->
+  <h3>4.2 Gráficas Bidimensionales</h3>
+  <p>
+    Una vez que se entienden las variables por separado, el análisis continúa explorando cómo se
+    relacionan entre sí. El objetivo es identificar combinaciones de variables en las que se detecte
+    alguna interrelación. Se eligieron dos combinaciones clave: sexo con supervivencia y clase con
+    supervivencia, por ser las que muestran los patrones más claros dentro de los datos.
+  </p>
+
+  <!-- Gráfica 4 -->
+  <div class="chart-block">
+    <h3>Gráfica 4 — Sexo vs Supervivencia</h3>
+    <details class="code-block">
+      <summary>Ver plantilla InjaX</summary>
+      <div class="code-inner">
+        <p class="code-cmd">$ <code>injax.exe data/tested.csv templates/grafica4_sexo_supervivencia.inja charts/grafica4_sexo_supervivencia.svg</code></p>
+        <pre><code>{# Gráfica 4 — Sexo vs Supervivencia (Barras Agrupadas) #}
+{# Fuente: data/tested.csv — Variables: Sex, Survived #}
+{# Tipo: Bidimensional #}
+
+{# ── Contar desde el CSV ──────────────────────────────────── #}
+{% set females = selectattr(data, &quot;Sex&quot;, &quot;equalto&quot;, &quot;female&quot;) %}
+{% set males   = selectattr(data, &quot;Sex&quot;, &quot;equalto&quot;, &quot;male&quot;) %}
+
+{% set femSurv = length(selectattr(females, &quot;Survived&quot;, &quot;equalto&quot;, 1)) %}
+{% set femDead = length(selectattr(females, &quot;Survived&quot;, &quot;equalto&quot;, 0)) %}
+{% set malSurv = length(selectattr(males,   &quot;Survived&quot;, &quot;equalto&quot;, 1)) %}
+{% set malDead = length(selectattr(males,   &quot;Survived&quot;, &quot;equalto&quot;, 0)) %}
+
+{# array() para listas con variables (literales [var,...] no soportados) #}
+{% set groupLabels  = [&quot;Female&quot;,&quot;Male&quot;] %}
+{% set survivedList = array(femSurv, malSurv) %}
+{% set notSurvList  = array(femDead, malDead) %}
+{% set chartData    = zip_obj([&quot;group&quot;,&quot;survived&quot;,&quot;notSurvived&quot;], groupLabels, survivedList, notSurvList) %}
+
+{# ── Escala y dimensiones ─────────────────────────────────── #}
+{% set margin = obj(&quot;top&quot;, 65, &quot;right&quot;, 120, &quot;bottom&quot;, 60, &quot;left&quot;, 70) %}
+{% set width = 560 - margin.left - margin.right %}
+{% set height = 420 - margin.top - margin.bottom %}
+{% set groups = map(chartData, &quot;group&quot;) %}
+
+{% set x = scaleBand()
+| domain(groups)
+| range(0, width)
+| padding(0.3) %}
+
+{% set y = scaleLinear()
+| domain(0, 300)
+| range(height, 0) %}
+
+&lt;svg width=&quot;{{width + margin.left + margin.right}}&quot;
+     height=&quot;{{height + margin.top + margin.bottom}}&quot;
+     xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+&lt;style&gt;
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+&lt;/style&gt;
+&lt;g transform=&quot;translate({{margin.left}},{{margin.top}})&quot;&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;15&quot; font-weight=&quot;bold&quot; fill=&quot;#1a1a2e&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-38&quot;&gt;
+    Sexo vs Supervivencia
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#777&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-20&quot;&gt;
+    Variables: Sex y Survived — Pasajeros del Titanic
+  &lt;/text&gt;
+  &lt;g transform=&quot;translate(0,{{height}})&quot;&gt;
+    {{ call(axisBottom(x) | tickValues(groups)) }}
+  &lt;/g&gt;
+  &lt;g&gt;{{ call(axisLeft(y) | tickCount(6)) }}&lt;/g&gt;
+  {% for d in chartData %}
+  &lt;rect x=&quot;{{ scale(x, d.group) }}&quot;
+        y=&quot;{{ scale(y, d.notSurvived) }}&quot;
+        width=&quot;{{ bandwidth(x) / 2 - 2 }}&quot;
+        height=&quot;{{ height - scale(y, d.notSurvived) }}&quot;
+        fill=&quot;#e63946&quot; opacity=&quot;0.87&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; font-weight=&quot;bold&quot; fill=&quot;#c1121f&quot;
+        text-anchor=&quot;middle&quot;
+        x=&quot;{{ scale(x, d.group) + bandwidth(x) / 4 - 1 }}&quot;
+        y=&quot;{{ scale(y, d.notSurvived) - 5 }}&quot;&gt;
+    {{ d.notSurvived }}
+  &lt;/text&gt;
+  &lt;rect x=&quot;{{ scale(x, d.group) + bandwidth(x) / 2 + 2 }}&quot;
+        y=&quot;{{ scale(y, d.survived) }}&quot;
+        width=&quot;{{ bandwidth(x) / 2 - 2 }}&quot;
+        height=&quot;{{ height - scale(y, d.survived) }}&quot;
+        fill=&quot;#2a9d8f&quot; opacity=&quot;0.87&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; font-weight=&quot;bold&quot; fill=&quot;#1b7a70&quot;
+        text-anchor=&quot;middle&quot;
+        x=&quot;{{ scale(x, d.group) + bandwidth(x) * 3 / 4 + 1 }}&quot;
+        y=&quot;{{ scale(y, d.survived) - 5 }}&quot;&gt;
+    {{ d.survived }}
+  &lt;/text&gt;
+  {% endfor %}
+  &lt;rect x=&quot;{{ width + 15 }}&quot; y=&quot;20&quot; width=&quot;14&quot; height=&quot;14&quot; fill=&quot;#e63946&quot; opacity=&quot;0.87&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#333&quot;
+        x=&quot;{{ width + 34 }}&quot; y=&quot;32&quot;&gt;No Sobrevivió&lt;/text&gt;
+  &lt;rect x=&quot;{{ width + 15 }}&quot; y=&quot;42&quot; width=&quot;14&quot; height=&quot;14&quot; fill=&quot;#2a9d8f&quot; opacity=&quot;0.87&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#333&quot;
+        x=&quot;{{ width + 34 }}&quot; y=&quot;54&quot;&gt;Sobrevivió&lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#555&quot;
+        text-anchor=&quot;middle&quot; transform=&quot;rotate(-90)&quot;
+        x=&quot;{{-(height / 2)}}&quot; y=&quot;-52&quot;&gt;
+    Número de Pasajeros
+  &lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+</code></pre>
+      </div>
+    </details>
+    <div class="chart-wrapper">
+      <img src="charts/grafica4_sexo_supervivencia.svg" alt="Sexo vs Supervivencia" />
+      <p class="chart-caption">
+        Gráfico de barras agrupadas con las variables <em>Sex</em> y <em>Survived</em>.
+        <a class="gist-link" href="https://gist.github.com/Kevin-Calvo/e165824c69f781e204b997af7ceab70e" target="_blank">Ver Gist #4</a>
+      </p>
+    </div>
+    <p>
+      Al analizar la relación entre el sexo y la supervivencia, la gráfica muestra un
+      comportamiento completamente definido: en el caso de las mujeres se registran 152
+      sobrevivientes y ningún fallecimiento, mientras que en los hombres ocurre lo contrario,
+      con 266 no sobrevivientes. Este resultado indica que, dentro del conjunto de datos
+      utilizado, no existe variabilidad en la variable de supervivencia para cada género,
+      ya que cada grupo está asociado únicamente a un único resultado. Debido a esta falta de
+      variabilidad, no es posible realizar un análisis comparativo real, aunque la gráfica
+      describe claramente el comportamiento de los datos.
+    </p>
+  </div>
+
+  <!-- Gráfica 5 -->
+  <div class="chart-block">
+    <h3>Gráfica 5 — Clase vs Supervivencia</h3>
+    <details class="code-block">
+      <summary>Ver plantilla InjaX</summary>
+      <div class="code-inner">
+        <p class="code-cmd">$ <code>injax.exe data/tested.csv templates/grafica5_clase_supervivencia.inja charts/grafica5_clase_supervivencia.svg</code></p>
+        <pre><code>{# Gráfica 5 — Clase vs Supervivencia (Barras Agrupadas) #}
+{# Fuente: data/tested.csv — Variables: Pclass, Survived #}
+{# Tipo: Bidimensional #}
+
+{# ── Contar desde el CSV ──────────────────────────────────── #}
+{% set c1 = selectattr(data, &quot;Pclass&quot;, &quot;equalto&quot;, 1) %}
+{% set c2 = selectattr(data, &quot;Pclass&quot;, &quot;equalto&quot;, 2) %}
+{% set c3 = selectattr(data, &quot;Pclass&quot;, &quot;equalto&quot;, 3) %}
+
+{% set c1surv = length(selectattr(c1, &quot;Survived&quot;, &quot;equalto&quot;, 1)) %}
+{% set c1dead = length(selectattr(c1, &quot;Survived&quot;, &quot;equalto&quot;, 0)) %}
+{% set c2surv = length(selectattr(c2, &quot;Survived&quot;, &quot;equalto&quot;, 1)) %}
+{% set c2dead = length(selectattr(c2, &quot;Survived&quot;, &quot;equalto&quot;, 0)) %}
+{% set c3surv = length(selectattr(c3, &quot;Survived&quot;, &quot;equalto&quot;, 1)) %}
+{% set c3dead = length(selectattr(c3, &quot;Survived&quot;, &quot;equalto&quot;, 0)) %}
+
+{# array() para listas con variables #}
+{% set groupLabels  = [&quot;1ra Clase&quot;,&quot;2da Clase&quot;,&quot;3ra Clase&quot;] %}
+{% set survRates    = [47, 32, 35] %}
+{% set survivedList = array(c1surv, c2surv, c3surv) %}
+{% set notSurvList  = array(c1dead, c2dead, c3dead) %}
+{% set chartData    = zip_obj([&quot;group&quot;,&quot;survived&quot;,&quot;notSurvived&quot;,&quot;survRate&quot;], groupLabels, survivedList, notSurvList, survRates) %}
+
+{# ── Escala y dimensiones ─────────────────────────────────── #}
+{% set margin = obj(&quot;top&quot;, 65, &quot;right&quot;, 120, &quot;bottom&quot;, 60, &quot;left&quot;, 70) %}
+{% set width = 600 - margin.left - margin.right %}
+{% set height = 430 - margin.top - margin.bottom %}
+{% set groups = map(chartData, &quot;group&quot;) %}
+
+{% set x = scaleBand()
+| domain(groups)
+| range(0, width)
+| padding(0.25) %}
+
+{% set y = scaleLinear()
+| domain(0, 160)
+| range(height, 0) %}
+
+&lt;svg width=&quot;{{width + margin.left + margin.right}}&quot;
+     height=&quot;{{height + margin.top + margin.bottom}}&quot;
+     xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+&lt;style&gt;
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+&lt;/style&gt;
+&lt;g transform=&quot;translate({{margin.left}},{{margin.top}})&quot;&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;15&quot; font-weight=&quot;bold&quot; fill=&quot;#1a1a2e&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-38&quot;&gt;
+    Clase de Viaje vs Supervivencia
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#777&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-20&quot;&gt;
+    Variables: Pclass y Survived — Pasajeros del Titanic
+  &lt;/text&gt;
+  &lt;g transform=&quot;translate(0,{{height}})&quot;&gt;
+    {{ call(axisBottom(x) | tickValues(groups)) }}
+  &lt;/g&gt;
+  &lt;g&gt;{{ call(axisLeft(y) | tickCount(6)) }}&lt;/g&gt;
+  {% for d in chartData %}
+  &lt;rect x=&quot;{{ scale(x, d.group) }}&quot;
+        y=&quot;{{ scale(y, d.notSurvived) }}&quot;
+        width=&quot;{{ bandwidth(x) / 2 - 2 }}&quot;
+        height=&quot;{{ height - scale(y, d.notSurvived) }}&quot;
+        fill=&quot;#e63946&quot; opacity=&quot;0.87&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; font-weight=&quot;bold&quot; fill=&quot;#c1121f&quot;
+        text-anchor=&quot;middle&quot;
+        x=&quot;{{ scale(x, d.group) + bandwidth(x) / 4 - 1 }}&quot;
+        y=&quot;{{ scale(y, d.notSurvived) - 5 }}&quot;&gt;
+    {{ d.notSurvived }}
+  &lt;/text&gt;
+  &lt;rect x=&quot;{{ scale(x, d.group) + bandwidth(x) / 2 + 2 }}&quot;
+        y=&quot;{{ scale(y, d.survived) }}&quot;
+        width=&quot;{{ bandwidth(x) / 2 - 2 }}&quot;
+        height=&quot;{{ height - scale(y, d.survived) }}&quot;
+        fill=&quot;#2a9d8f&quot; opacity=&quot;0.87&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; font-weight=&quot;bold&quot; fill=&quot;#1b7a70&quot;
+        text-anchor=&quot;middle&quot;
+        x=&quot;{{ scale(x, d.group) + bandwidth(x) * 3 / 4 + 1 }}&quot;
+        y=&quot;{{ scale(y, d.survived) - 5 }}&quot;&gt;
+    {{ d.survived }}
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;10&quot; fill=&quot;#555&quot; font-style=&quot;italic&quot;
+        text-anchor=&quot;middle&quot;
+        x=&quot;{{ scale(x, d.group) + bandwidth(x) / 2 }}&quot;
+        y=&quot;{{ scale(y, d.survived) - 18 }}&quot;&gt;
+    {{ d.survRate }}%
+  &lt;/text&gt;
+  {% endfor %}
+  &lt;rect x=&quot;{{ width + 15 }}&quot; y=&quot;20&quot; width=&quot;14&quot; height=&quot;14&quot; fill=&quot;#e63946&quot; opacity=&quot;0.87&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#333&quot;
+        x=&quot;{{ width + 34 }}&quot; y=&quot;32&quot;&gt;No Sobrevivió&lt;/text&gt;
+  &lt;rect x=&quot;{{ width + 15 }}&quot; y=&quot;42&quot; width=&quot;14&quot; height=&quot;14&quot; fill=&quot;#2a9d8f&quot; opacity=&quot;0.87&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#333&quot;
+        x=&quot;{{ width + 34 }}&quot; y=&quot;54&quot;&gt;Sobrevivió&lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#555&quot;
+        text-anchor=&quot;middle&quot; transform=&quot;rotate(-90)&quot;
+        x=&quot;{{-(height / 2)}}&quot; y=&quot;-52&quot;&gt;
+    Número de Pasajeros
+  &lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+</code></pre>
+      </div>
+    </details>
+    <div class="chart-wrapper">
+      <img src="charts/grafica5_clase_supervivencia.svg" alt="Clase vs Supervivencia" />
+      <p class="chart-caption">
+        Gráfico de barras agrupadas con las variables <em>Pclass</em> y <em>Survived</em>.
+        <a class="gist-link" href="https://gist.github.com/Kevin-Calvo/49fbf981b42f8e1aed7c00d507d6d392" target="_blank">Ver Gist #5</a>
+      </p>
+    </div>
+    <p>
+      A diferencia del análisis anterior, la variable clase (Pclass) sí permite realizar un
+      análisis comparativo más completo. En primera clase hubo 57 fallecidos y 50 sobrevivientes
+      (≈47% de supervivencia). En segunda clase, 63 fallecidos y 30 sobrevivientes (≈32%).
+      Finalmente, en tercera clase, 136 fallecidos y 72 sobrevivientes (≈35%). Estos datos muestran
+      diferencias importantes entre las clases: los pasajeros de primera clase presentan una mayor
+      proporción de supervivencia. Esto puede explicarse por factores estructurales del barco —
+      los pasajeros de primera clase se encontraban en zonas más accesibles y cercanas a las
+      cubiertas superiores, lo que les facilitó el acceso a los botes salvavidas.
+    </p>
+  </div>
+
+  <!-- 4.3 Multidimensional -->
+  <h3>4.3 Gráfica Multidimensional</h3>
+  <p>
+    Las gráficas anteriores mostraron cómo cada variable, por separado, se relaciona con la
+    supervivencia. Sin embargo, en la realidad estas variables no actúan de forma aislada, sino
+    que se combinan entre sí. La siguiente gráfica reúne cinco variables simultáneamente con el
+    objetivo de observar patrones más completos.
+  </p>
+
+  <!-- Gráfica 6 -->
+  <div class="chart-block">
+    <h3>Gráfica 6 — Edad, Tarifa, Supervivencia, Sexo y Clase</h3>
+    <details class="code-block">
+      <summary>Ver plantilla InjaX</summary>
+      <div class="code-inner">
+        <p class="code-cmd">$ <code>injax.exe data/tested.csv templates/grafica6_multidimensional.inja charts/grafica6_multidimensional.svg</code></p>
+        <pre><code>{# Gráfica 6 — Edad, Tarifa, Supervivencia, Sexo y Clase (Scatter Multidimensional) #}
+{# Fuente: data/tested.csv — Variables: Age, Fare, Survived, Sex, Pclass #}
+{# Tipo: Multidimensional (≥5 variables) #}
+
+{# ── Filtrar registros con Age o Fare nulos ───────────────── #}
+{% set validData = rejectattr(data, &quot;Age&quot;,  &quot;none&quot;) %}
+{% set validData = rejectattr(validData, &quot;Fare&quot;, &quot;none&quot;) %}
+
+{# ── Escalas ──────────────────────────────────────────────── #}
+{% set margin = obj(&quot;top&quot;, 65, &quot;right&quot;, 150, &quot;bottom&quot;, 65, &quot;left&quot;, 70) %}
+{% set width = 760 - margin.left - margin.right %}
+{% set height = 520 - margin.top - margin.bottom %}
+
+{% set x = scaleLinear()
+| domain(0, 80)
+| range(0, width) %}
+
+{% set y = scaleLinear()
+| domain(0, 200)
+| range(height, 0) %}
+
+{% set colorScale = scaleOrdinal()
+| domain([0, 1])
+| range([&quot;#e63946&quot;, &quot;#2a9d8f&quot;]) %}
+
+{% set classOpacity = scaleOrdinal()
+| domain([1, 2, 3])
+| range([1.0, 0.75, 0.5]) %}
+
+&lt;svg width=&quot;{{width + margin.left + margin.right}}&quot;
+     height=&quot;{{height + margin.top + margin.bottom}}&quot;
+     xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+&lt;style&gt;
+  .tick-label { font-family: sans-serif; font-size: 11px; fill: #444; }
+  .axis-line, .tick-line { stroke: #aaa; }
+  .grid-line { stroke: #e5e5e5; stroke-dasharray: 3,3; }
+&lt;/style&gt;
+&lt;g transform=&quot;translate({{margin.left}},{{margin.top}})&quot;&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;15&quot; font-weight=&quot;bold&quot; fill=&quot;#1a1a2e&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-38&quot;&gt;
+    Análisis Multidimensional — Pasajeros del Titanic
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#777&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;-20&quot;&gt;
+    Age × Fare · Color: Survived · Forma: Sex · Opacidad: Pclass
+  &lt;/text&gt;
+  &lt;rect x=&quot;0&quot; y=&quot;0&quot; width=&quot;{{width}}&quot; height=&quot;{{height}}&quot; fill=&quot;#f0f0f0&quot;/&gt;
+  {% for tick in [10, 20, 30, 40, 50, 60, 70] %}
+  &lt;line class=&quot;grid-line&quot;
+        x1=&quot;{{ scale(x, tick) }}&quot; y1=&quot;0&quot;
+        x2=&quot;{{ scale(x, tick) }}&quot; y2=&quot;{{ height }}&quot;/&gt;
+  {% endfor %}
+  {% for tick in [25, 50, 75, 100, 125, 150, 175, 200] %}
+  &lt;line class=&quot;grid-line&quot;
+        x1=&quot;0&quot; y1=&quot;{{ scale(y, tick) }}&quot;
+        x2=&quot;{{ width }}&quot; y2=&quot;{{ scale(y, tick) }}&quot;/&gt;
+  {% endfor %}
+  &lt;g transform=&quot;translate(0,{{height}})&quot;&gt;
+    {{ call(axisBottom(x) | tickCount(8)) }}
+  &lt;/g&gt;
+  &lt;g&gt;{{ call(axisLeft(y) | tickCount(8)) }}&lt;/g&gt;
+  {% for d in validData %}
+  {% if d.Sex == &quot;female&quot; %}
+  &lt;circle cx=&quot;{{ scale(x, d.Age) }}&quot;
+          cy=&quot;{{ scale(y, d.Fare) }}&quot;
+          r=&quot;5&quot;
+          fill=&quot;{{ scale(colorScale, d.Survived) }}&quot;
+          opacity=&quot;{{ scale(classOpacity, d.Pclass) }}&quot;
+          stroke=&quot;white&quot; stroke-width=&quot;0.5&quot;/&gt;
+  {% else %}
+  &lt;rect x=&quot;{{ scale(x, d.Age) - 4 }}&quot;
+        y=&quot;{{ scale(y, d.Fare) - 4 }}&quot;
+        width=&quot;8&quot; height=&quot;8&quot;
+        fill=&quot;{{ scale(colorScale, d.Survived) }}&quot;
+        opacity=&quot;{{ scale(classOpacity, d.Pclass) }}&quot;
+        stroke=&quot;white&quot; stroke-width=&quot;0.5&quot;/&gt;
+  {% endif %}
+  {% endfor %}
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#555&quot;
+        text-anchor=&quot;middle&quot; x=&quot;{{width / 2}}&quot; y=&quot;{{height + 50}}&quot;&gt;
+    Edad (años)
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;12&quot; fill=&quot;#555&quot;
+        text-anchor=&quot;middle&quot; transform=&quot;rotate(-90)&quot;
+        x=&quot;{{-(height / 2)}}&quot; y=&quot;-52&quot;&gt;
+    Tarifa (USD)
+  &lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; font-weight=&quot;bold&quot; fill=&quot;#333&quot;
+        x=&quot;{{ width + 15 }}&quot; y=&quot;20&quot;&gt;Survived&lt;/text&gt;
+  &lt;circle cx=&quot;{{ width + 22 }}&quot; cy=&quot;36&quot; r=&quot;5&quot; fill=&quot;#e63946&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#333&quot; x=&quot;{{ width + 32 }}&quot; y=&quot;40&quot;&gt;No (0)&lt;/text&gt;
+  &lt;circle cx=&quot;{{ width + 22 }}&quot; cy=&quot;54&quot; r=&quot;5&quot; fill=&quot;#2a9d8f&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#333&quot; x=&quot;{{ width + 32 }}&quot; y=&quot;58&quot;&gt;Sí (1)&lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; font-weight=&quot;bold&quot; fill=&quot;#333&quot;
+        x=&quot;{{ width + 15 }}&quot; y=&quot;82&quot;&gt;Sex&lt;/text&gt;
+  &lt;circle cx=&quot;{{ width + 22 }}&quot; cy=&quot;97&quot; r=&quot;5&quot; fill=&quot;#888&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#333&quot; x=&quot;{{ width + 32 }}&quot; y=&quot;101&quot;&gt;Female (○)&lt;/text&gt;
+  &lt;rect x=&quot;{{ width + 17 }}&quot; y=&quot;111&quot; width=&quot;10&quot; height=&quot;10&quot; fill=&quot;#888&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#333&quot; x=&quot;{{ width + 32 }}&quot; y=&quot;120&quot;&gt;Male (□)&lt;/text&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; font-weight=&quot;bold&quot; fill=&quot;#333&quot;
+        x=&quot;{{ width + 15 }}&quot; y=&quot;145&quot;&gt;Pclass&lt;/text&gt;
+  &lt;circle cx=&quot;{{ width + 22 }}&quot; cy=&quot;160&quot; r=&quot;5&quot; fill=&quot;#888&quot; opacity=&quot;1.0&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#333&quot; x=&quot;{{ width + 32 }}&quot; y=&quot;164&quot;&gt;1ra&lt;/text&gt;
+  &lt;circle cx=&quot;{{ width + 22 }}&quot; cy=&quot;178&quot; r=&quot;5&quot; fill=&quot;#888&quot; opacity=&quot;0.75&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#333&quot; x=&quot;{{ width + 32 }}&quot; y=&quot;182&quot;&gt;2da&lt;/text&gt;
+  &lt;circle cx=&quot;{{ width + 22 }}&quot; cy=&quot;196&quot; r=&quot;5&quot; fill=&quot;#888&quot; opacity=&quot;0.5&quot;/&gt;
+  &lt;text font-family=&quot;sans-serif&quot; font-size=&quot;11&quot; fill=&quot;#333&quot; x=&quot;{{ width + 32 }}&quot; y=&quot;200&quot;&gt;3ra&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+</code></pre>
+      </div>
+    </details>
+    <div class="chart-wrapper">
+      <img src="charts/grafica6_multidimensional.svg" alt="Gráfica Multidimensional: 5 variables" />
+      <p class="chart-caption">
+        Scatter plot multidimensional. Ejes: <em>Age</em> (x) y <em>Fare</em> (y). Color:
+        <em>Survived</em>. Forma del símbolo: <em>Sex</em>. Tamaño/posición: <em>Pclass</em>.
+        <a class="gist-link" href="https://gist.github.com/Kevin-Calvo/cf110ebf63388180d199ef08333afa12" target="_blank">Ver Gist #6</a>
+      </p>
+    </div>
+    <p>
+      Al ver la gráfica, lo primero que se nota es que hay una gran concentración de pasajeros
+      entre los 18 y 38 años, lo que indica que la mayoría eran adultos jóvenes. En cuanto a
+      las tarifas, casi todas están por debajo de los 100 USD, con muy pocos casos que superan
+      ese valor. Al combinar las cinco variables, se pueden observar patrones conjuntos: los
+      puntos correspondientes a sobrevivientes de primera clase tienden a concentrarse en la parte
+      superior del gráfico (tarifas altas), mientras que los no sobrevivientes de tercera clase
+      se agrupan en la parte inferior izquierda (edades medias, tarifas bajas). Esto refuerza la
+      idea de que la clase social, combinada con el sexo y la edad, fue un factor determinante
+      en las probabilidades de sobrevivir.
+    </p>
+  </div>
+
+</section>
+
+<!-- ──────────────────────────────────────────────
+     5. CONCLUSIONES
+────────────────────────────────────────────── -->
+<section id="conclusiones">
+  <h2>5. Conclusiones</h2>
+  <p>
+    A través de las seis gráficas elaboradas en este proyecto, se logró replicar y profundizar
+    el análisis exploratorio del dataset del Titanic, esta vez utilizando InjaX para generar
+    archivos SVG individuales. Las principales conclusiones son:
+  </p>
+  <ul class="conclusions">
+    <li>
+      <strong>Perfil demográfico:</strong> La mayoría de los pasajeros eran adultos jóvenes
+      (18–29 años) que viajaban en tercera clase y pagaban tarifas bajas. Esto refleja una
+      población de emigrantes en busca de nuevas oportunidades.
+    </li>
+    <li>
+      <strong>Tarifa y clase:</strong> La distribución asimétrica de la tarifa evidencia una
+      gran desigualdad económica a bordo. Los valores extremos (hasta 512 USD) corresponden
+      a pasajeros de primera clase en condiciones muy distintas al resto.
+    </li>
+    <li>
+      <strong>Sexo y supervivencia:</strong> La gráfica de sexo vs supervivencia revela
+      una falta total de variabilidad en el dataset utilizado: todas las mujeres aparecen como
+      sobrevivientes y todos los hombres como no sobrevivientes. Esto limita el análisis
+      estadístico de esta relación.
+    </li>
+    <li>
+      <strong>Clase y supervivencia:</strong> La primera clase presentó la mayor tasa de
+      supervivencia (≈47%), seguida de la tercera (≈35%) y la segunda (≈32%). Esto sugiere
+      que la ubicación física en el barco —determinada por la clase— influyó directamente
+      en el acceso a los botes salvavidas.
+    </li>
+    <li>
+      <strong>Visión multidimensional:</strong> La gráfica de cinco variables confirma que
+      los patrones de supervivencia no se explican con una sola variable, sino por la
+      combinación de clase, sexo, edad y tarifa. Los pasajeros de primera clase con tarifas
+      altas tuvieron significativamente más probabilidades de sobrevivir.
+    </li>
+  </ul>
+  <p>
+    En comparación con el Proyecto 1, donde se usaron visualizaciones interactivas en R Markdown,
+    este proyecto demuestra que es posible comunicar los mismos patrones mediante gráficas SVG
+    estáticas generadas programáticamente con InjaX, lo que facilita la reproducibilidad y la
+    publicación en la web como archivos independientes.
+  </p>
+</section>
+
+<!-- ──────────────────────────────────────────────
+     6. GISTS DE GITHUB
+────────────────────────────────────────────── -->
+<section id="gists">
+  <h2>6. Referencias a los Gists Publicados</h2>
+  <p>
+    A continuación se listan los gists de GitHub con el código fuente (plantilla InjaX),
+    el archivo de datos, la imagen SVG generada y el readme descriptivo de cada gráfica.
+    Cada gist está en inglés según lo indicado en las instrucciones del proyecto.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Gráfica</th>
+        <th>Tipo</th>
+        <th>Variables</th>
+        <th>Enlace</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="gist1">
+        <td>1</td>
+        <td>Distribución de Edad</td>
+        <td>Unidimensional</td>
+        <td>Age</td>
+        <td><a href="https://gist.github.com/Kevin-Calvo/2995ce203f85c3506bcf4f43f1ff3688" target="_blank">Gist #1</a></td>
+      </tr>
+      <tr id="gist2">
+        <td>2</td>
+        <td>Distribución por Clase</td>
+        <td>Unidimensional</td>
+        <td>Pclass</td>
+        <td><a href="https://gist.github.com/Kevin-Calvo/5f80b1470495d68bbb144ecb9a5f34ca" target="_blank">Gist #2</a></td>
+      </tr>
+      <tr id="gist3">
+        <td>3</td>
+        <td>Distribución de Tarifa</td>
+        <td>Unidimensional</td>
+        <td>Fare</td>
+        <td><a href="https://gist.github.com/Kevin-Calvo/d890d9af2284f50c3fa6b577f415d62e" target="_blank">Gist #3</a></td>
+      </tr>
+      <tr id="gist4">
+        <td>4</td>
+        <td>Sexo vs Supervivencia</td>
+        <td>Bidimensional</td>
+        <td>Sex, Survived</td>
+        <td><a href="https://gist.github.com/Kevin-Calvo/e165824c69f781e204b997af7ceab70e" target="_blank">Gist #4</a></td>
+      </tr>
+      <tr id="gist5">
+        <td>5</td>
+        <td>Clase vs Supervivencia</td>
+        <td>Bidimensional</td>
+        <td>Pclass, Survived</td>
+        <td><a href="https://gist.github.com/Kevin-Calvo/49fbf981b42f8e1aed7c00d507d6d392" target="_blank">Gist #5</a></td>
+      </tr>
+      <tr id="gist6">
+        <td>6</td>
+        <td>Análisis Multidimensional</td>
+        <td>Multidimensional</td>
+        <td>Age, Fare, Survived, Sex, Pclass</td>
+        <td><a href="https://gist.github.com/Kevin-Calvo/cf110ebf63388180d199ef08333afa12" target="_blank">Gist #6</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+
+</section>
+
+</div><!-- /.container -->
+
+<footer>
+  <p>Proyecto 2 — Análisis Exploratorio de Datos · Visualización de Información · TEC · 2026</p>
+  <p>Kevin Yadir Calvo Rodríguez &amp; María Félix Méndez Abarca</p>
+</footer>
+
+</body>
+</html>

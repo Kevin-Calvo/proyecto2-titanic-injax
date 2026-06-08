@@ -1,0 +1,101 @@
+{# Gráfica 5 — Clase vs Supervivencia (Barras Agrupadas) #}
+{# Fuente: data/tested.csv — Variables: Pclass, Survived #}
+{# Tipo: Bidimensional #}
+
+{# ── Contar desde el CSV ──────────────────────────────────── #}
+{% set c1 = selectattr(data, "Pclass", "equalto", 1) %}
+{% set c2 = selectattr(data, "Pclass", "equalto", 2) %}
+{% set c3 = selectattr(data, "Pclass", "equalto", 3) %}
+
+{% set c1surv = length(selectattr(c1, "Survived", "equalto", 1)) %}
+{% set c1dead = length(selectattr(c1, "Survived", "equalto", 0)) %}
+{% set c2surv = length(selectattr(c2, "Survived", "equalto", 1)) %}
+{% set c2dead = length(selectattr(c2, "Survived", "equalto", 0)) %}
+{% set c3surv = length(selectattr(c3, "Survived", "equalto", 1)) %}
+{% set c3dead = length(selectattr(c3, "Survived", "equalto", 0)) %}
+
+{# array() para listas con variables #}
+{% set groupLabels  = ["1ra Clase","2da Clase","3ra Clase"] %}
+{% set survRates    = [47, 32, 35] %}
+{% set survivedList = array(c1surv, c2surv, c3surv) %}
+{% set notSurvList  = array(c1dead, c2dead, c3dead) %}
+{% set chartData    = zip_obj(["group","survived","notSurvived","survRate"], groupLabels, survivedList, notSurvList, survRates) %}
+
+{# ── Escala y dimensiones ─────────────────────────────────── #}
+{% set margin = obj("top", 65, "right", 120, "bottom", 60, "left", 70) %}
+{% set width = 600 - margin.left - margin.right %}
+{% set height = 430 - margin.top - margin.bottom %}
+{% set groups = map(chartData, "group") %}
+
+{% set x = scaleBand()
+| domain(groups)
+| range(0, width)
+| padding(0.25) %}
+
+{% set y = scaleLinear()
+| domain(0, 160)
+| range(height, 0) %}
+
+<svg width="{{width + margin.left + margin.right}}"
+     height="{{height + margin.top + margin.bottom}}"
+     xmlns="http://www.w3.org/2000/svg">
+<style>
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+</style>
+<g transform="translate({{margin.left}},{{margin.top}})">
+  <text font-family="sans-serif" font-size="15" font-weight="bold" fill="#1a1a2e"
+        text-anchor="middle" x="{{width / 2}}" y="-38">
+    Clase de Viaje vs Supervivencia
+  </text>
+  <text font-family="sans-serif" font-size="11" fill="#777"
+        text-anchor="middle" x="{{width / 2}}" y="-20">
+    Variables: Pclass y Survived — Pasajeros del Titanic
+  </text>
+  <g transform="translate(0,{{height}})">
+    {{ call(axisBottom(x) | tickValues(groups)) }}
+  </g>
+  <g>{{ call(axisLeft(y) | tickCount(6)) }}</g>
+  {% for d in chartData %}
+  <rect x="{{ scale(x, d.group) }}"
+        y="{{ scale(y, d.notSurvived) }}"
+        width="{{ bandwidth(x) / 2 - 2 }}"
+        height="{{ height - scale(y, d.notSurvived) }}"
+        fill="#e63946" opacity="0.87"/>
+  <text font-family="sans-serif" font-size="11" font-weight="bold" fill="#c1121f"
+        text-anchor="middle"
+        x="{{ scale(x, d.group) + bandwidth(x) / 4 - 1 }}"
+        y="{{ scale(y, d.notSurvived) - 5 }}">
+    {{ d.notSurvived }}
+  </text>
+  <rect x="{{ scale(x, d.group) + bandwidth(x) / 2 + 2 }}"
+        y="{{ scale(y, d.survived) }}"
+        width="{{ bandwidth(x) / 2 - 2 }}"
+        height="{{ height - scale(y, d.survived) }}"
+        fill="#2a9d8f" opacity="0.87"/>
+  <text font-family="sans-serif" font-size="11" font-weight="bold" fill="#1b7a70"
+        text-anchor="middle"
+        x="{{ scale(x, d.group) + bandwidth(x) * 3 / 4 + 1 }}"
+        y="{{ scale(y, d.survived) - 5 }}">
+    {{ d.survived }}
+  </text>
+  <text font-family="sans-serif" font-size="10" fill="#555" font-style="italic"
+        text-anchor="middle"
+        x="{{ scale(x, d.group) + bandwidth(x) / 2 }}"
+        y="{{ scale(y, d.survived) - 18 }}">
+    {{ d.survRate }}%
+  </text>
+  {% endfor %}
+  <rect x="{{ width + 15 }}" y="20" width="14" height="14" fill="#e63946" opacity="0.87"/>
+  <text font-family="sans-serif" font-size="12" fill="#333"
+        x="{{ width + 34 }}" y="32">No Sobrevivió</text>
+  <rect x="{{ width + 15 }}" y="42" width="14" height="14" fill="#2a9d8f" opacity="0.87"/>
+  <text font-family="sans-serif" font-size="12" fill="#333"
+        x="{{ width + 34 }}" y="54">Sobrevivió</text>
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" transform="rotate(-90)"
+        x="{{-(height / 2)}}" y="-52">
+    Número de Pasajeros
+  </text>
+</g>
+</svg>

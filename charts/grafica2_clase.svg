@@ -1,0 +1,110 @@
+
+
+
+
+
+
+<svg width="500"
+     height="420"
+     xmlns="http://www.w3.org/2000/svg">
+<style>
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+</style>
+<g transform="translate(70,55)">
+  <text font-family="sans-serif" font-size="15" font-weight="bold" fill="#1a1a2e"
+        text-anchor="middle" x="200.0" y="-28">
+    Distribución por Clase de Viaje
+  </text>
+  <text font-family="sans-serif" font-size="11" fill="#777"
+        text-anchor="middle" x="200.0" y="-12">
+    Variable: Pclass — Pasajeros del Titanic
+  </text>
+  <g transform="translate(0,305)">
+    <!-- axis orientation=bottom range=[0,400] ticks=3 -->
+  <g class="axis axis-bottom" transform="translate(0, 0)">
+    <line class="axis-line" x1="0" y1="0" x2="400" y2="0" stroke="currentColor" stroke-width="1"/>
+    <g class="tick" transform="translate(16.67, 0)">
+      <line class="tick-line" x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="0" y="9" text-anchor="middle" dominant-baseline="hanging" dy="0.15em" >1ra Clase</text>
+    </g>
+    <g class="tick" transform="translate(150, 0)">
+      <line class="tick-line" x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="0" y="9" text-anchor="middle" dominant-baseline="hanging" dy="0.15em" >2da Clase</text>
+    </g>
+    <g class="tick" transform="translate(283.33, 0)">
+      <line class="tick-line" x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="0" y="9" text-anchor="middle" dominant-baseline="hanging" dy="0.15em" >3ra Clase</text>
+    </g>
+  </g>
+
+  </g>
+  <g><!-- axis orientation=left range=[305,0] ticks=6 -->
+  <g class="axis axis-left" transform="translate(0, 0)">
+    <line class="axis-line" x1="0" y1="305" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+    <g class="tick" transform="translate(0, 305)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >0</text>
+    </g>
+    <g class="tick" transform="translate(0, 246.35)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >50</text>
+    </g>
+    <g class="tick" transform="translate(0, 187.69)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >100</text>
+    </g>
+    <g class="tick" transform="translate(0, 129.04)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >150</text>
+    </g>
+    <g class="tick" transform="translate(0, 70.38)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >200</text>
+    </g>
+    <g class="tick" transform="translate(0, 11.73)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >250</text>
+    </g>
+  </g>
+</g>
+  <rect x="16.66666666666667"
+        y="179.48076923076923"
+        width="100.0"
+        height="125.51923076923077"
+        fill="#e63946" opacity="0.87"/>
+  <text font-family="sans-serif" font-size="13" font-weight="bold" fill="#222"
+        text-anchor="middle"
+        x="66.66666666666667"
+        y="173.48076923076923">
+    107
+  </text>
+  <rect x="150.0"
+        y="195.90384615384613"
+        width="100.0"
+        height="109.09615384615387"
+        fill="#457b9d" opacity="0.87"/>
+  <text font-family="sans-serif" font-size="13" font-weight="bold" fill="#222"
+        text-anchor="middle"
+        x="200.0"
+        y="189.90384615384613">
+    93
+  </text>
+  <rect x="283.33333333333337"
+        y="49.269230769230774"
+        width="100.0"
+        height="255.73076923076923"
+        fill="#2a9d8f" opacity="0.87"/>
+  <text font-family="sans-serif" font-size="13" font-weight="bold" fill="#222"
+        text-anchor="middle"
+        x="333.33333333333337"
+        y="43.269230769230774">
+    218
+  </text>
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" transform="rotate(-90)"
+        x="152.5" y="-52">
+    Número de Pasajeros
+  </text>
+</g>
+</svg>

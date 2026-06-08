@@ -1,0 +1,119 @@
+
+
+
+
+
+
+
+<svg width="700"
+     height="450"
+     xmlns="http://www.w3.org/2000/svg">
+<style>
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+</style>
+<g transform="translate(75,55)">
+  <text font-family="sans-serif" font-size="15" font-weight="bold" fill="#1a1a2e"
+        text-anchor="middle" x="297.5" y="-28">
+    Distribución de Tarifa Pagada — Pasajeros del Titanic
+  </text>
+  <text font-family="sans-serif" font-size="11" fill="#777"
+        text-anchor="middle" x="297.5" y="-12">
+    Variable: Fare (USD) — valores nulos excluidos
+  </text>
+  <g transform="translate(0,320)">
+    <!-- axis orientation=bottom range=[0,595] ticks=5 -->
+  <g class="axis axis-bottom" transform="translate(0, 0)">
+    <line class="axis-line" x1="0" y1="0" x2="595" y2="0" stroke="currentColor" stroke-width="1"/>
+    <g class="tick" transform="translate(4.76, 0)">
+      <line class="tick-line" x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="0" y="9" text-anchor="middle" dominant-baseline="hanging" dy="0.15em" >0-25</text>
+    </g>
+    <g class="tick" transform="translate(123.76, 0)">
+      <line class="tick-line" x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="0" y="9" text-anchor="middle" dominant-baseline="hanging" dy="0.15em" >25-50</text>
+    </g>
+    <g class="tick" transform="translate(242.76, 0)">
+      <line class="tick-line" x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="0" y="9" text-anchor="middle" dominant-baseline="hanging" dy="0.15em" >50-100</text>
+    </g>
+    <g class="tick" transform="translate(361.76, 0)">
+      <line class="tick-line" x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="0" y="9" text-anchor="middle" dominant-baseline="hanging" dy="0.15em" >100-200</text>
+    </g>
+    <g class="tick" transform="translate(480.76, 0)">
+      <line class="tick-line" x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="0" y="9" text-anchor="middle" dominant-baseline="hanging" dy="0.15em" >200+</text>
+    </g>
+  </g>
+
+  </g>
+  <g><!-- axis orientation=left range=[320,0] ticks=7 -->
+  <g class="axis axis-left" transform="translate(0, 0)">
+    <line class="axis-line" x1="0" y1="320" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+    <g class="tick" transform="translate(0, 320)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >0</text>
+    </g>
+    <g class="tick" transform="translate(0, 270)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >50</text>
+    </g>
+    <g class="tick" transform="translate(0, 220)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >100</text>
+    </g>
+    <g class="tick" transform="translate(0, 170)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >150</text>
+    </g>
+    <g class="tick" transform="translate(0, 120)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >200</text>
+    </g>
+    <g class="tick" transform="translate(0, 70)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >250</text>
+    </g>
+    <g class="tick" transform="translate(0, 20)">
+      <line class="tick-line" x1="-6" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="1"/>
+      <text class="tick-label" x="-9" y="0" text-anchor="end" dominant-baseline="central" >300</text>
+    </g>
+  </g>
+</g>
+  <rect x="4.759999999999998"
+        y="55.0"
+        width="109.48"
+        height="265.0"
+        fill="#f4a261" opacity="0.87"/>
+  <rect x="123.75999999999999"
+        y="248.0"
+        width="109.48"
+        height="72.0"
+        fill="#f4a261" opacity="0.87"/>
+  <rect x="242.76"
+        y="270.0"
+        width="109.48"
+        height="50.0"
+        fill="#f4a261" opacity="0.87"/>
+  <rect x="361.76"
+        y="307.0"
+        width="109.48"
+        height="13.0"
+        fill="#f4a261" opacity="0.87"/>
+  <rect x="480.76"
+        y="302.0"
+        width="109.48"
+        height="18.0"
+        fill="#f4a261" opacity="0.87"/>
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" x="297.5" y="380">
+    Rango de Tarifa (USD)
+  </text>
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" transform="rotate(-90)"
+        x="160.0" y="-57">
+    Número de Pasajeros
+  </text>
+</g>
+</svg>

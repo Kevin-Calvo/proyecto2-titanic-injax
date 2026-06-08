@@ -1,0 +1,76 @@
+{# Gráfica 3 — Distribución de Tarifa Pagada (Histograma) #}
+{# Fuente: data/tested.csv — Variable: Fare #}
+{# Tipo: Unidimensional #}
+
+{# ── Construir bins desde el CSV  ── #}
+{% set b0 = [] %}{% set b1 = [] %}{% set b2 = [] %}{% set b3 = [] %}{% set b4 = [] %}
+
+{% for d in data %}
+{% if hasKey(d, "Fare") %}
+{% if d.Fare < 25 %}{% set b0 = append(b0, 1) %}
+{% else %}{% if d.Fare < 50 %}{% set b1 = append(b1, 1) %}
+{% else %}{% if d.Fare < 100 %}{% set b2 = append(b2, 1) %}
+{% else %}{% if d.Fare < 200 %}{% set b3 = append(b3, 1) %}
+{% else %}{% set b4 = append(b4, 1) %}
+{% endif %}{% endif %}{% endif %}{% endif %}
+{% endif %}
+{% endfor %}
+
+{# array() para listas con variables  #}
+{% set binLabels = ["0-25","25-50","50-100","100-200","200+"] %}
+{% set binCounts = array(length(b0),length(b1),length(b2),length(b3),length(b4)) %}
+{% set chartData = zip_obj(["bin","count"], binLabels, binCounts) %}
+
+{# ── Escala y dimensiones ─────────────────────────────────── #}
+{% set margin = obj("top", 55, "right", 30, "bottom", 75, "left", 75) %}
+{% set width = 700 - margin.left - margin.right %}
+{% set height = 450 - margin.top - margin.bottom %}
+{% set bins = map(chartData, "bin") %}
+
+{% set x = scaleBand()
+| domain(bins)
+| range(0, width)
+| padding(0.08) %}
+
+{% set y = scaleLinear()
+| domain(0, 320)
+| range(height, 0) %}
+
+<svg width="{{width + margin.left + margin.right}}"
+     height="{{height + margin.top + margin.bottom}}"
+     xmlns="http://www.w3.org/2000/svg">
+<style>
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+</style>
+<g transform="translate({{margin.left}},{{margin.top}})">
+  <text font-family="sans-serif" font-size="15" font-weight="bold" fill="#1a1a2e"
+        text-anchor="middle" x="{{width / 2}}" y="-28">
+    Distribución de Tarifa Pagada — Pasajeros del Titanic
+  </text>
+  <text font-family="sans-serif" font-size="11" fill="#777"
+        text-anchor="middle" x="{{width / 2}}" y="-12">
+    Variable: Fare (USD) — valores nulos excluidos
+  </text>
+  <g transform="translate(0,{{height}})">
+    {{ call(axisBottom(x) | tickValues(bins)) }}
+  </g>
+  <g>{{ call(axisLeft(y) | tickCount(7)) }}</g>
+  {% for d in chartData %}
+  <rect x="{{ scale(x, d.bin) }}"
+        y="{{ scale(y, d.count) }}"
+        width="{{ bandwidth(x) }}"
+        height="{{ height - scale(y, d.count) }}"
+        fill="#f4a261" opacity="0.87"/>
+  {% endfor %}
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" x="{{width / 2}}" y="{{height + 60}}">
+    Rango de Tarifa (USD)
+  </text>
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" transform="rotate(-90)"
+        x="{{-(height / 2)}}" y="-57">
+    Número de Pasajeros
+  </text>
+</g>
+</svg>

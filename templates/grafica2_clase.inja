@@ -1,0 +1,70 @@
+{# Gráfica 2 — Distribución por Clase de Viaje (Barras) #}
+{# Fuente: data/tested.csv — Variable: Pclass #}
+{# Tipo: Unidimensional #}
+
+{# ── Contar pasajeros por clase desde el CSV ─────────────── #}
+{% set c1 = selectattr(data, "Pclass", "equalto", 1) %}
+{% set c2 = selectattr(data, "Pclass", "equalto", 2) %}
+{% set c3 = selectattr(data, "Pclass", "equalto", 3) %}
+
+{% set classLabels = ["1ra Clase","2da Clase","3ra Clase"] %}
+{% set classColors = ["#e63946","#457b9d","#2a9d8f"] %}
+{# array() para listas con variables (literales [var,...] no soportados) #}
+{% set classCounts = array(length(c1), length(c2), length(c3)) %}
+{% set chartData   = zip_obj(["label","count","color"], classLabels, classCounts, classColors) %}
+
+{# ── Escala y dimensiones ─────────────────────────────────── #}
+{% set margin = obj("top", 55, "right", 30, "bottom", 60, "left", 70) %}
+{% set width = 500 - margin.left - margin.right %}
+{% set height = 420 - margin.top - margin.bottom %}
+{% set labels = map(chartData, "label") %}
+
+{% set x = scaleBand()
+| domain(labels)
+| range(0, width)
+| padding(0.25) %}
+
+{% set y = scaleLinear()
+| domain(0, 260)
+| range(height, 0) %}
+
+<svg width="{{width + margin.left + margin.right}}"
+     height="{{height + margin.top + margin.bottom}}"
+     xmlns="http://www.w3.org/2000/svg">
+<style>
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+</style>
+<g transform="translate({{margin.left}},{{margin.top}})">
+  <text font-family="sans-serif" font-size="15" font-weight="bold" fill="#1a1a2e"
+        text-anchor="middle" x="{{width / 2}}" y="-28">
+    Distribución por Clase de Viaje
+  </text>
+  <text font-family="sans-serif" font-size="11" fill="#777"
+        text-anchor="middle" x="{{width / 2}}" y="-12">
+    Variable: Pclass — Pasajeros del Titanic
+  </text>
+  <g transform="translate(0,{{height}})">
+    {{ call(axisBottom(x) | tickValues(labels)) }}
+  </g>
+  <g>{{ call(axisLeft(y) | tickCount(6)) }}</g>
+  {% for d in chartData %}
+  <rect x="{{ scale(x, d.label) }}"
+        y="{{ scale(y, d.count) }}"
+        width="{{ bandwidth(x) }}"
+        height="{{ height - scale(y, d.count) }}"
+        fill="{{ d.color }}" opacity="0.87"/>
+  <text font-family="sans-serif" font-size="13" font-weight="bold" fill="#222"
+        text-anchor="middle"
+        x="{{ scale(x, d.label) + bandwidth(x) / 2 }}"
+        y="{{ scale(y, d.count) - 6 }}">
+    {{ d.count }}
+  </text>
+  {% endfor %}
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" transform="rotate(-90)"
+        x="{{-(height / 2)}}" y="-52">
+    Número de Pasajeros
+  </text>
+</g>
+</svg>

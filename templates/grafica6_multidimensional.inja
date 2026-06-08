@@ -1,0 +1,109 @@
+{# Gráfica 6 — Edad, Tarifa, Supervivencia, Sexo y Clase (Scatter Multidimensional) #}
+{# Fuente: data/tested.csv — Variables: Age, Fare, Survived, Sex, Pclass #}
+{# Tipo: Multidimensional (≥5 variables) #}
+
+{# ── Filtrar registros con Age o Fare nulos ───────────────── #}
+{% set validData = rejectattr(data, "Age",  "none") %}
+{% set validData = rejectattr(validData, "Fare", "none") %}
+
+{# ── Escalas ──────────────────────────────────────────────── #}
+{% set margin = obj("top", 65, "right", 150, "bottom", 65, "left", 70) %}
+{% set width = 760 - margin.left - margin.right %}
+{% set height = 520 - margin.top - margin.bottom %}
+
+{% set x = scaleLinear()
+| domain(0, 80)
+| range(0, width) %}
+
+{% set y = scaleLinear()
+| domain(0, 200)
+| range(height, 0) %}
+
+{% set colorScale = scaleOrdinal()
+| domain([0, 1])
+| range(["#e63946", "#2a9d8f"]) %}
+
+{% set classOpacity = scaleOrdinal()
+| domain([1, 2, 3])
+| range([1.0, 0.75, 0.5]) %}
+
+<svg width="{{width + margin.left + margin.right}}"
+     height="{{height + margin.top + margin.bottom}}"
+     xmlns="http://www.w3.org/2000/svg">
+<style>
+  .tick-label { font-family: sans-serif; font-size: 11px; fill: #444; }
+  .axis-line, .tick-line { stroke: #aaa; }
+  .grid-line { stroke: #e5e5e5; stroke-dasharray: 3,3; }
+</style>
+<g transform="translate({{margin.left}},{{margin.top}})">
+  <text font-family="sans-serif" font-size="15" font-weight="bold" fill="#1a1a2e"
+        text-anchor="middle" x="{{width / 2}}" y="-38">
+    Análisis Multidimensional — Pasajeros del Titanic
+  </text>
+  <text font-family="sans-serif" font-size="11" fill="#777"
+        text-anchor="middle" x="{{width / 2}}" y="-20">
+    Age × Fare · Color: Survived · Forma: Sex · Opacidad: Pclass
+  </text>
+  <rect x="0" y="0" width="{{width}}" height="{{height}}" fill="#f0f0f0"/>
+  {% for tick in [10, 20, 30, 40, 50, 60, 70] %}
+  <line class="grid-line"
+        x1="{{ scale(x, tick) }}" y1="0"
+        x2="{{ scale(x, tick) }}" y2="{{ height }}"/>
+  {% endfor %}
+  {% for tick in [25, 50, 75, 100, 125, 150, 175, 200] %}
+  <line class="grid-line"
+        x1="0" y1="{{ scale(y, tick) }}"
+        x2="{{ width }}" y2="{{ scale(y, tick) }}"/>
+  {% endfor %}
+  <g transform="translate(0,{{height}})">
+    {{ call(axisBottom(x) | tickCount(8)) }}
+  </g>
+  <g>{{ call(axisLeft(y) | tickCount(8)) }}</g>
+  {% for d in validData %}
+  {% if d.Sex == "female" %}
+  <circle cx="{{ scale(x, d.Age) }}"
+          cy="{{ scale(y, d.Fare) }}"
+          r="5"
+          fill="{{ scale(colorScale, d.Survived) }}"
+          opacity="{{ scale(classOpacity, d.Pclass) }}"
+          stroke="white" stroke-width="0.5"/>
+  {% else %}
+  <rect x="{{ scale(x, d.Age) - 4 }}"
+        y="{{ scale(y, d.Fare) - 4 }}"
+        width="8" height="8"
+        fill="{{ scale(colorScale, d.Survived) }}"
+        opacity="{{ scale(classOpacity, d.Pclass) }}"
+        stroke="white" stroke-width="0.5"/>
+  {% endif %}
+  {% endfor %}
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" x="{{width / 2}}" y="{{height + 50}}">
+    Edad (años)
+  </text>
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" transform="rotate(-90)"
+        x="{{-(height / 2)}}" y="-52">
+    Tarifa (USD)
+  </text>
+  <text font-family="sans-serif" font-size="11" font-weight="bold" fill="#333"
+        x="{{ width + 15 }}" y="20">Survived</text>
+  <circle cx="{{ width + 22 }}" cy="36" r="5" fill="#e63946"/>
+  <text font-family="sans-serif" font-size="11" fill="#333" x="{{ width + 32 }}" y="40">No (0)</text>
+  <circle cx="{{ width + 22 }}" cy="54" r="5" fill="#2a9d8f"/>
+  <text font-family="sans-serif" font-size="11" fill="#333" x="{{ width + 32 }}" y="58">Sí (1)</text>
+  <text font-family="sans-serif" font-size="11" font-weight="bold" fill="#333"
+        x="{{ width + 15 }}" y="82">Sex</text>
+  <circle cx="{{ width + 22 }}" cy="97" r="5" fill="#888"/>
+  <text font-family="sans-serif" font-size="11" fill="#333" x="{{ width + 32 }}" y="101">Female (○)</text>
+  <rect x="{{ width + 17 }}" y="111" width="10" height="10" fill="#888"/>
+  <text font-family="sans-serif" font-size="11" fill="#333" x="{{ width + 32 }}" y="120">Male (□)</text>
+  <text font-family="sans-serif" font-size="11" font-weight="bold" fill="#333"
+        x="{{ width + 15 }}" y="145">Pclass</text>
+  <circle cx="{{ width + 22 }}" cy="160" r="5" fill="#888" opacity="1.0"/>
+  <text font-family="sans-serif" font-size="11" fill="#333" x="{{ width + 32 }}" y="164">1ra</text>
+  <circle cx="{{ width + 22 }}" cy="178" r="5" fill="#888" opacity="0.75"/>
+  <text font-family="sans-serif" font-size="11" fill="#333" x="{{ width + 32 }}" y="182">2da</text>
+  <circle cx="{{ width + 22 }}" cy="196" r="5" fill="#888" opacity="0.5"/>
+  <text font-family="sans-serif" font-size="11" fill="#333" x="{{ width + 32 }}" y="200">3ra</text>
+</g>
+</svg>

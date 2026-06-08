@@ -1,0 +1,82 @@
+{# Gráfica 1 — Distribución de Edad (Histograma) #}
+{# Fuente: data/tested.csv — Variable: Age #}
+{# Tipo: Unidimensional #}
+
+{# ── Construir bins desde el CSV  ── #}
+{% set b0 = [] %}{% set b1 = [] %}{% set b2 = [] %}{% set b3 = [] %}
+{% set b4 = [] %}{% set b5 = [] %}{% set b6 = [] %}{% set b7 = [] %}
+
+{% for d in data %}
+{% if hasKey(d, "Age") %}
+{% if d.Age < 10 %}{% set b0 = append(b0, 1) %}
+{% else %}{% if d.Age < 20 %}{% set b1 = append(b1, 1) %}
+{% else %}{% if d.Age < 30 %}{% set b2 = append(b2, 1) %}
+{% else %}{% if d.Age < 40 %}{% set b3 = append(b3, 1) %}
+{% else %}{% if d.Age < 50 %}{% set b4 = append(b4, 1) %}
+{% else %}{% if d.Age < 60 %}{% set b5 = append(b5, 1) %}
+{% else %}{% if d.Age < 70 %}{% set b6 = append(b6, 1) %}
+{% else %}{% set b7 = append(b7, 1) %}
+{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+{% endif %}
+{% endfor %}
+
+{# array() para listas con variables  #}
+{% set binLabels = ["0-9","10-19","20-29","30-39","40-49","50-59","60-69","70+"] %}
+{% set binCounts = array(length(b0),length(b1),length(b2),length(b3),length(b4),length(b5),length(b6),length(b7)) %}
+{% set chartData = zip_obj(["bin","count"], binLabels, binCounts) %}
+
+{# ── Escala y dimensiones ─────────────────────────────────── #}
+{% set margin = obj("top", 55, "right", 30, "bottom", 75, "left", 70) %}
+{% set width = 700 - margin.left - margin.right %}
+{% set height = 450 - margin.top - margin.bottom %}
+{% set bins = map(chartData, "bin") %}
+
+{% set x = scaleBand()
+| domain(bins)
+| range(0, width)
+| padding(0.08) %}
+
+{% set y = scaleLinear()
+| domain(0, 140)
+| range(height, 0) %}
+
+<svg width="{{width + margin.left + margin.right}}"
+     height="{{height + margin.top + margin.bottom}}"
+     xmlns="http://www.w3.org/2000/svg">
+<style>
+  .tick-label { font-family: sans-serif; font-size: 12px; fill: #444; }
+  .axis-line, .tick-line { stroke: #888; }
+  .bar { opacity: 0.85; }
+</style>
+<g transform="translate({{margin.left}},{{margin.top}})">
+  <text font-family="sans-serif" font-size="15" font-weight="bold" fill="#1a1a2e"
+        text-anchor="middle" x="{{width / 2}}" y="-28">
+    Distribución de Edad — Pasajeros del Titanic
+  </text>
+  <text font-family="sans-serif" font-size="11" fill="#777"
+        text-anchor="middle" x="{{width / 2}}" y="-12">
+    Variable: Age (valores nulos excluidos)
+  </text>
+  <g transform="translate(0,{{height}})">
+    {{ call(axisBottom(x) | tickValues(bins)) }}
+  </g>
+  <g>{{ call(axisLeft(y) | tickCount(6)) }}</g>
+  {% for d in chartData %}
+  <rect class="bar"
+        x="{{ scale(x, d.bin) }}"
+        y="{{ scale(y, d.count) }}"
+        width="{{ bandwidth(x) }}"
+        height="{{ height - scale(y, d.count) }}"
+        fill="#4e79a7"/>
+  {% endfor %}
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" x="{{width / 2}}" y="{{height + 60}}">
+    Rango de Edad (años)
+  </text>
+  <text font-family="sans-serif" font-size="12" fill="#555"
+        text-anchor="middle" transform="rotate(-90)"
+        x="{{-(height / 2)}}" y="-52">
+    Número de Pasajeros
+  </text>
+</g>
+</svg>
